@@ -1,21 +1,12 @@
-
 import streamlit as st
-import pandas as pd
+import santi as santi
+import nini as nini
 
-df = pd.read_excel("Biblioteca_cleaned.xlsx")
-# Title
-st.title("My Personal Library")
+st.title("Biblioteca Virtual")
 
-# Search bar
-search = st.text_input("Search for a book, author, or publisher")
+option = st.selectbox("Selecciona tu biblioteca:", ["Biblioteca de Santi", "Biblioteca de Nini"])
 
-# Filter results
-if search:
-    filtered_df = df[
-        df["Titulo"].str.contains(search, case=False, na=False) |
-        df["Autor"].str.contains(search, case=False, na=False) |
-        df["Editorial"].str.contains(search, case=False, na=False)
-    ]
-    st.write(filtered_df)
-else:
-    st.write(df)
+if option == "Biblioteca de Santi":
+    santi.show()
+elif option == "Biblioteca de Nini":
+    nini.show()
