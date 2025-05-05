@@ -21,6 +21,7 @@ st.title("Biblioteca Virtual")
 
 # If no authenticated user, show library selection
 if st.session_state["authenticated_user"] is None:
+    
     option = st.selectbox("Selecciona tu biblioteca:", ["Biblioteca de Nini", "Biblioteca de Santi"])
 
     # Extract user from selection
@@ -32,7 +33,8 @@ if st.session_state["authenticated_user"] is None:
         if authenticate_user(selected_user, password):
             st.session_state["authenticated_user"] = selected_user
             st.success(f"¡Bienvenida a la {option}!")
-            st.session_state["authenticated_library"] = option  
+            st.session_state["authenticated_library"] = option 
+            st.rerun() 
         else:
             st.error("¡Contraseña incorrecta! Inténtalo de nuevo.")
 

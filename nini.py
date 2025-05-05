@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from utils.common import load_books, save_books, search_books
+from utils.common import load_books, save_books, search_books, edit_book, remove_book
 
-# Define file path for Santiago's books
-FILENAME = "data/Biblioteca_cleaned.xlsx"
+# Define file path for Nini's books
+FILENAME = "data/Biblioteca_nini.xlsx"
+USER = "Nini"
 
 def show():
     st.header("Biblioteca de Nini")
@@ -26,7 +27,7 @@ def show():
         autor = st.text_input("Autor")
         editorial = st.text_input("Editorial")
         submit = st.form_submit_button("Añadir libro")
-        
+        commit_message = f"Added new book: {titulo} by {autor} in {USER}'s library"
         if submit:
             if titulo and autor and editorial:
                 new_row = pd.DataFrame([{
@@ -35,12 +36,12 @@ def show():
                 "Editorial": editorial
             }])
                 df = pd.concat([df, new_row], ignore_index=True)
-                save_books(df, FILENAME)
+                save_books(df, FILENAME, commit_message)
                 st.success("Libro añadido exitosamente!")
             else:
                 st.error("Por favor, completa todos los campos.")
                 
-    # Edit and Remove Books
+ # Edit and Remove Books
     st.subheader("Editar o eliminar libros")
     if not df.empty:
         book_titles = df["Titulo"].tolist()
@@ -56,20 +57,31 @@ def show():
                 new_autor = st.text_input("Autor", value=df.loc[book_index, "Autor"])
                 new_editorial = st.text_input("Editorial", value=df.loc[book_index, "Editorial"])
                 update = st.form_submit_button("Actualizar libro")
+                commit_message = f"Updated book: {new_titulo} by {new_autor} in {USER}'s library"
                 
                 if update:
-                    df.loc[book_index, "Titulo"] = new_titulo
-                    df.loc[book_index, "Autor"] = new_autor
-                    df.loc[book_index, "Editorial"] = new_editorial
-                    save_books(df, FILENAME)
+                    df = edit_book(df, book_index, new_titulo, new_autor, new_editorial, FILENAME, commit_message)
                     st.success("Libro actualizado exitosamente!")
                     
-            
+            # Initialize session state for deletion
+            if "delete_confirmation" not in st.session_state:
+                st.session_state["delete_confirmation"] = {}
+
             # Remove book
             if st.button("Eliminar libro", key=f"delete_book_{book_index}"):
-                df = df.drop(index=book_index).reset_index(drop=True)
-                save_books(df, FILENAME)
-                st.success("Libro eliminado exitosamente!")
+                st.session_state["delete_confirmation"][book_index] = True
+
+            if st.session_state["delete_confirmation"].get(book_index):
+                st.warning(
+                    f"Estás segura que quieres eliminar el libro '{df.loc[book_index, 'Titulo']}' "
+                    f"del autor '{df.loc[book_index, 'Autor']}' de la editorial '{df.loc[book_index, 'Editorial']}'?"
+                )
+                if st.button("Confirmar eliminación", key=f"confirm_delete_{book_index}"):
+                    commit_message = f"Deleted book: {df.loc[book_index, 'Titulo']} from {USER}'s library"
+                    df, book_title = remove_book(df, book_index, FILENAME, commit_message)
+                    st.success(f"Libro '{book_title}' eliminado exitosamente!")
+                    del st.session_state["delete_confirmation"][book_index]  # Reset the confirmation state
+
                 
     else:
         st.info("No hay libros en la biblioteca.")
