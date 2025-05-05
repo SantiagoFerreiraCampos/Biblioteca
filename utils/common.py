@@ -1,4 +1,6 @@
 import pandas
+import streamlit as st
+from github import Github
 
 def load_books(filename):
     """
@@ -16,19 +18,6 @@ def load_books(filename):
     except Exception as e:
         print(f"Error loading file: {e}")
         return None
-
-def save_books(df, filename):
-    """
-    Save books to an Excel file.
-    
-    Args:
-        df (pandas.DataFrame): The DataFrame containing the book data.
-        filename (str): The path to the Excel file.
-    """
-    try:
-        df.to_excel(filename, index=False)
-    except Exception as e:
-        print(f"Error saving file: {e}")
 
 def search_books(df, search_term):
     """
@@ -49,3 +38,86 @@ def search_books(df, search_term):
         ]
         return filtered_df
     return df
+
+def push_to_github(filename,commit_message):
+    """
+    Push the updated file to GitHub.
+
+    Args:
+        filename (str): The path to the file to be pushed.
+
+    """
+    # Retrieve secrets
+    GITHUB_TOKEN = st.secrets["token"]
+    REPO_NAME = "SantiagoFerreiraCampos/Biblioteca"
+    FILE_PATH = filename
+    COMMIT_MESSAGE = commit_message
+
+    # Authenticate with GitHub
+    g = Github(GITHUB_TOKEN)
+    repo = g.get_repo(REPO_NAME)
+
+    # Read the updated file
+    with open(filename, "rb") as file:
+        content = file.read()
+
+    # Check if the file already exists on GitHub
+    try:
+        file_on_github = repo.get_contents(FILE_PATH)
+        # Update existing file
+        repo.update_file(FILE_PATH, COMMIT_MESSAGE, content, file_on_github.sha)
+    except Exception as e:
+        # If file doesn't exist, create a new one
+        repo.create_file(FILE_PATH, COMMIT_MESSAGE, content)
+
+def save_books(df, filename, commit_message):
+    """
+    Save books to an Excel file.
+    
+    Args:
+        df (pandas.DataFrame): The DataFrame containing the book data.
+        filename (str): The path to the Excel file.
+    """
+    try:
+        # Save locally
+        df.to_excel(filename, index=False)
+
+        # Push to GitHub
+        push_to_github(filename,commit_message)
+    except Exception as e:
+        print(f"Error saving file: {e}")
+
+def edit_book(df, book_index, new_title, new_author, new_editorial, filename, commit_message):
+    """
+    Edit the details of a book in the DataFrame and save changes.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing books.
+        book_index (int): Index of the book to edit.
+        new_title (str): New title of the book.
+        new_author (str): New author of the book.
+        new_editorial (str): New editorial of the book.
+        filename (str): Path to the Excel file.
+        commit_message (str): Commit message for the update.
+    """
+    df.loc[book_index, "Titulo"] = new_title
+    df.loc[book_index, "Autor"] = new_author
+    df.loc[book_index, "Editorial"] = new_editorial
+    save_books(df, filename, commit_message)
+    return df
+
+def remove_book(df, book_index, filename, commit_message):
+    """
+    Remove a book from the DataFrame and save changes.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing books.
+        book_index (int): Index of the book to remove.
+        filename (str): Path to the Excel file.
+        commit_message (str): Commit message for the removal.
+    """
+    book_title = df.loc[book_index, "Titulo"]
+    df = df.drop(index=book_index).reset_index(drop=True)
+    save_books(df, filename, commit_message)
+    return df, book_title
+
