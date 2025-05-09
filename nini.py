@@ -161,8 +161,7 @@ def wishlist():
         st.info("No hay libros en la lista de deseos.")
     #add book from wishlist to library using the wishlist_to_library function
     st.subheader("Añadir libro de la lista de deseos a la biblioteca")
-    # Add Book from Wishlist to Library
-    st.subheader("Añadir libro de la lista de deseos a la biblioteca")
+    
     if not wishlist_df.empty:
         selected_book_to_library = st.selectbox("Selecciona un libro para mover a la biblioteca", [""] + wishlist_titles)
         if selected_book_to_library:
