@@ -4,7 +4,7 @@ from utils.common import load_books, save_books, search_books, edit_book, remove
 
 # Define file paths
 FILENAME = "data/nini/Biblioteca.xlsx"
-WISHLIST_FILENAME = "data/nini/wishlist.xlsx"
+WISHLIST_FILENAME = "data/nini/Wishlist.xlsx"
 USER = "Nini"
  
 

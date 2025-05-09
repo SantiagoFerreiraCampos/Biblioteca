@@ -80,8 +80,3 @@ if st.session_state["authenticated_user"] is not None:
         user.wishlist()
     elif st.session_state["current_page"] == "Estadisticas":
         user.estadisticas()
-
-
-
-
-   
