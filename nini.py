@@ -6,7 +6,7 @@ from utils.common import load_books, save_books, search_books, edit_book, remove
 FILENAME = "data/nini/Biblioteca.xlsx"
 WISHLIST_FILENAME = "data/nini/wishlist.xlsx"
 USER = "Nini"
-user =USER.lower()  
+ 
 
 def biblioteca():
     st.subheader("Biblioteca de Nini")
@@ -170,7 +170,7 @@ def wishlist():
             if library_action:
                 wishlist_index = wishlist_df[wishlist_df["Titulo"] == selected_book_to_library].index[0]
                 commit_message = f"Moved book '{selected_book_to_library}' from wishlist to biblioteca"
-                wishlist_to_library(user, wishlist_index, commit_message)
+                wishlist_to_library(USER.lower(), wishlist_index, commit_message)
                 st.success(f"'{selected_book_to_library}' se ha movido a la biblioteca exitosamente!")
 
     

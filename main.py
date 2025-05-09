@@ -12,7 +12,8 @@ st.set_page_config(page_title="Biblioteca Virtual", page_icon=":book:", layout="
 # Initialize session state for authentication
 if "authenticated_user" not in st.session_state:
     st.session_state["authenticated_user"] = None
-
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = "Biblioteca"  # Default page
 # Authentication Function
 def authenticate_user(selected_option, password):
     """
@@ -53,33 +54,33 @@ if st.session_state["authenticated_user"] is not None:
         user=nini
 
 
-    st.sidebar.title(library_name)
-    # Update sidebar navigation to use session state
-if "current_page" not in st.session_state:
-    st.session_state["current_page"] = "Biblioteca"  # Default page
+        st.sidebar.title(library_name)
+        # Update sidebar navigation to use session state
 
-if st.sidebar.button("Biblioteca", key="library_button"):
-    st.session_state["current_page"] = "Biblioteca"
 
-if st.sidebar.button("Wishlist", key="wishlist_button"):
-    st.session_state["current_page"] = "Wishlist"
+    if st.sidebar.button("Biblioteca", key="library_button"):
+        st.session_state["current_page"] = "Biblioteca"
 
-if st.sidebar.button("Estadisticas", key="stats_button"):
-    st.session_state["current_page"] = "Estadisticas"
+    if st.sidebar.button("Wishlist", key="wishlist_button"):
+        st.session_state["current_page"] = "Wishlist"
 
-if st.sidebar.button("Cerrar sesión"):
-    st.session_state["authenticated_user"] = None
-    st.session_state["authenticated_library"] = None
-    st.session_state["current_page"] = None
-    st.rerun()
+    if st.sidebar.button("Estadisticas", key="stats_button"):
+        st.session_state["current_page"] = "Estadisticas"
 
-# Render the selected page
-if st.session_state["current_page"] == "Biblioteca":
-    user.biblioteca()
-elif st.session_state["current_page"] == "Wishlist":
-    user.wishlist()
-elif st.session_state["current_page"] == "Estadisticas":
-    user.estadisticas()
+    if st.sidebar.button("Cerrar sesión"):
+        st.session_state["authenticated_user"] = None
+        st.session_state["authenticated_library"] = None
+        st.session_state["current_page"] = None
+        st.rerun()
+
+    # Render the selected page
+    if st.session_state["current_page"] == "Biblioteca":
+        user.biblioteca()
+    elif st.session_state["current_page"] == "Wishlist":
+        user.wishlist()
+    elif st.session_state["current_page"] == "Estadisticas":
+        user.estadisticas()
+
 
 
 
