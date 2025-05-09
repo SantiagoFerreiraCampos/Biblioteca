@@ -1,5 +1,6 @@
 import pandas
 import streamlit as st
+import pandas as pd
 from github import Github
 
 def load_books(filename):
@@ -38,6 +39,7 @@ def search_books(df, search_term):
         ]
         return filtered_df
     return df
+
 
 def push_to_github(filename,commit_message):
     """
@@ -121,3 +123,46 @@ def remove_book(df, book_index, filename, commit_message):
     save_books(df, filename, commit_message)
     return df, book_title
 
+def wishlist_to_library(user, book_index, commit_message):
+    """
+    Move a book from the wishlist to the biblioteca for a specific user.
+    
+    Args:
+        user (str): The username or directory identifier for the user's data.
+        book_index (int): Index of the book to move from the wishlist.
+        commit_message (str): Commit message for the update.
+        
+    """
+    try:
+        # Load the user's wishlist and biblioteca
+        wishlist_filename = f"data/{user}/Wishlist.xlsx"
+        biblioteca_filename = f"data/{user}/Biblioteca.xlsx"
+        wishlist_df = load_books(wishlist_filename)
+        biblioteca_df = load_books(biblioteca_filename)
+        
+        if wishlist_df is None or biblioteca_df is None:
+            print("Error: Failed to load data.")
+            
+
+        # Get the book details from the wishlist
+        book_to_move = wishlist_df.iloc[book_index]
+    
+        # Add the book to biblioteca
+        new_entry = pd.DataFrame([book_to_move])
+        biblioteca_df = pd.concat([biblioteca_df, new_entry], ignore_index=True)
+        
+        # Remove the book from wishlist
+        wishlist_df = wishlist_df.drop(book_index).reset_index(drop=True)
+        
+        # Save both DataFrames
+        save_books(biblioteca_df, f"data/{user}/Biblioteca.xlsx", commit_message)
+        save_books(wishlist_df, f"data/{user}/Wishlist.xlsx", commit_message)
+        
+        
+    except Exception as e:
+        print(f"Error transferring book from wishlist to biblioteca: {e}")
+        return None, None
+    
+
+
+    
